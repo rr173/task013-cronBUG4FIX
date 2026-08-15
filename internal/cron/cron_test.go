@@ -209,6 +209,20 @@ func TestNextN(t *testing.T) {
 	}
 }
 
+// TestNextNTruncatesTo100 复现 NextN 将 count 截断到上限 100 的回归：
+// 当 count > 100 时应返回恰好 100 条，而非 99 条。
+func TestNextNTruncatesTo100(t *testing.T) {
+	s, _ := Parse("* * * * *")
+	from := parse(t, "2026-01-15T10:00:00Z")
+	got, err := s.NextN(from, 200)
+	if err != nil {
+		t.Fatalf("NextN: %v", err)
+	}
+	if len(got) != 100 {
+		t.Fatalf("len = %d, want 100", len(got))
+	}
+}
+
 func TestNextPreservesOffset(t *testing.T) {
 	s, _ := Parse("30 5 * * *")
 	from := parse(t, "2026-01-15T10:00:00+08:00")
